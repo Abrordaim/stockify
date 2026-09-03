@@ -12,4 +12,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+
 Route::livewire('/', 'pages::auth.login')->name('login');
+Route::livewire('/dashboard', 'pages::dashboard.dashboard')->name('dashboard'); 

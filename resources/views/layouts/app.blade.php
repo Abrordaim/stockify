@@ -12,7 +12,14 @@
     </head>
     <body>
         <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
+
+        @if (request()->routeIs('login') || request()->routeIs('register'))
+
+        @else
+            <livewire:navbar />
+        @endif
         {{ $slot }}
+
 
         @livewireScripts
     </body>
