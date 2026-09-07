@@ -62,6 +62,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user has any of the given roles.
+     *
+     * @param array<string> $roles
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        return in_array($this->role, $roles, true);
+    }
+
+    /**
      * Check if user is admin.
      */
     public function isAdmin(): bool
