@@ -19,7 +19,7 @@ class StockTransactionRepository extends BaseRepository implements StockTransact
      */
     public function getAllWithRelations(): Collection
     {
-        return $this->model->with(['product', 'user'])->latest()->get();
+        return $this->model->with(['product', 'user', 'createdBy', 'confirmedBy'])->latest()->get();
     }
 
     /**
@@ -27,7 +27,7 @@ class StockTransactionRepository extends BaseRepository implements StockTransact
      */
     public function getPaginatedWithRelations(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->with(['product', 'user'])->latest()->paginate($perPage);
+        return $this->model->with(['product', 'user', 'createdBy', 'confirmedBy'])->latest()->paginate($perPage);
     }
 
     /**
@@ -36,7 +36,7 @@ class StockTransactionRepository extends BaseRepository implements StockTransact
     public function getByProduct(int $productId): Collection
     {
         return $this->model->where('product_id', $productId)
-            ->with(['product', 'user'])
+            ->with(['product', 'user', 'createdBy', 'confirmedBy'])
             ->latest()
             ->get();
     }
@@ -47,7 +47,7 @@ class StockTransactionRepository extends BaseRepository implements StockTransact
     public function getByType(string $type): Collection
     {
         return $this->model->where('type', $type)
-            ->with(['product', 'user'])
+            ->with(['product', 'user', 'createdBy', 'confirmedBy'])
             ->latest()
             ->get();
     }
@@ -58,7 +58,7 @@ class StockTransactionRepository extends BaseRepository implements StockTransact
     public function getByStatus(string $status): Collection
     {
         return $this->model->where('status', $status)
-            ->with(['product', 'user'])
+            ->with(['product', 'user', 'createdBy', 'confirmedBy'])
             ->latest()
             ->get();
     }
@@ -68,8 +68,11 @@ class StockTransactionRepository extends BaseRepository implements StockTransact
      */
     public function getByDateRange(string $startDate, string $endDate): Collection
     {
-        return $this->model->whereBetween('date', [$startDate, $endDate])
-            ->with(['product', 'user'])
+        $start = str_contains($startDate, ':') ? $startDate : $startDate . ' 00:00:00';
+        $end = str_contains($endDate, ':') ? $endDate : $endDate . ' 23:59:59';
+
+        return $this->model->whereBetween('date', [$start, $end])
+            ->with(['product', 'user', 'createdBy', 'confirmedBy'])
             ->latest()
             ->get();
     }
@@ -80,7 +83,7 @@ class StockTransactionRepository extends BaseRepository implements StockTransact
     public function getByUser(int $userId): Collection
     {
         return $this->model->where('user_id', $userId)
-            ->with(['product', 'user'])
+            ->with(['product', 'user', 'createdBy', 'confirmedBy'])
             ->latest()
             ->get();
     }

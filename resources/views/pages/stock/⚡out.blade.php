@@ -254,17 +254,17 @@ new #[Layout('layouts.app')] #[Title('Barang Keluar (Outbound) - Stockify')] cla
                                 {{ $tx->notes ?: '-' }}
                             </td>
                             <td class="px-4 py-3.5 text-center whitespace-nowrap">
-                                @if($tx->status === 'completed')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
-                                        Selesai
+                                @if(in_array($tx->status, ['Dikeluarkan', 'completed']))
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                                        Dikeluarkan
                                     </span>
-                                @elseif($tx->status === 'pending')
+                                @elseif(in_array($tx->status, ['Pending', 'pending']))
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 animate-pulse">
-                                        Menunggu Disiapkan
+                                        Pending
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                                        Batal
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">
+                                        Ditolak
                                     </span>
                                 @endif
                             </td>

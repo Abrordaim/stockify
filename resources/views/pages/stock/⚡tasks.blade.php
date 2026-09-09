@@ -20,8 +20,8 @@ new #[Layout('layouts.app')] #[Title('Tugas Operasional Gudang - Stockify')] cla
     public function confirmTransaction(int $id, StockTransactionService $service): void
     {
         try {
-            $service->updateTransactionStatus($id, 'completed');
-            $this->successMessage = 'Tugas berhasil diselesaikan dan status transaksi telah diperbarui ke Selesai (Completed)!';
+            $service->confirmTransaction($id, auth()->id());
+            $this->successMessage = 'Tugas berhasil diverifikasi! Status transaksi telah diperbarui dan stok fisik produk telah disesuaikan.';
         } catch (\Exception $e) {
             $this->errorMessage = $e->getMessage();
         }
@@ -30,8 +30,8 @@ new #[Layout('layouts.app')] #[Title('Tugas Operasional Gudang - Stockify')] cla
     public function cancelTransaction(int $id, StockTransactionService $service): void
     {
         try {
-            $service->updateTransactionStatus($id, 'cancelled');
-            $this->successMessage = 'Transaksi telah dibatalkan.';
+            $service->rejectTransaction($id, auth()->id(), 'Ditolak oleh Staff Gudang saat verifikasi fisik');
+            $this->successMessage = 'Transaksi telah ditolak. Status berubah menjadi Ditolak dan stok tidak mengalami perubahan.';
         } catch (\Exception $e) {
             $this->errorMessage = $e->getMessage();
         }
@@ -138,7 +138,7 @@ new #[Layout('layouts.app')] #[Title('Tugas Operasional Gudang - Stockify')] cla
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
                             Tanggal: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $task->date ? $task->date->format('d F Y') : '-' }}</span>
-                            • Dicatat oleh: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $task->user->name ?? '-' }}</span>
+                            • Dicatat oleh: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $task->createdBy->name ?? ($task->user->name ?? '-') }}</span>
                         </p>
                         @if($task->notes)
                         <div class="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700 max-w-xl">
@@ -197,8 +197,9 @@ new #[Layout('layouts.app')] #[Title('Tugas Operasional Gudang - Stockify')] cla
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
                             Tanggal: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $task->date ? $task->date->format('d F Y') : '-' }}</span>
-                            • Dicatat oleh: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $task->user->name ?? '-' }}</span>
-                            • Stok Tersedia di Gudang: <span class="font-bold text-blue-600">{{ $task->product->current_stock ?? 0 }} unit</span>
+                            • Dicatat oleh: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $task->createdBy->name ?? ($task->user->name ?? '-') }}</span>
+                            • Stok Saat Ini: <span class="font-bold text-blue-600">{{ $task->product->current_stock ?? 0 }} unit</span>
+                            • Setelah Dikeluarkan: <span class="font-bold text-gray-700 dark:text-gray-300">{{ ($task->product->current_stock ?? 0) - $task->quantity }} unit</span>
                         </p>
                         @if($task->notes)
                         <div class="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700 max-w-xl">
@@ -214,11 +215,11 @@ new #[Layout('layouts.app')] #[Title('Tugas Operasional Gudang - Stockify')] cla
                         </div>
 
                         <div class="flex items-center space-x-2">
-                            <button wire:click="confirmTransaction({{ $task->id }})" wire:confirm="Konfirmasi bahwa barang {{ $task->product->name ?? '' }} ({{ $task->quantity }} unit) sudah disiapkan dan keluar dari gudang?" type="button" class="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-sm shadow-amber-500/20 transition">
-                                ✓ Konfirmasi Siap & Kirim
+                            <button wire:click="confirmTransaction({{ $task->id }})" wire:confirm="Konfirmasi bahwa barang {{ $task->product->name ?? '' }} ({{ $task->quantity }} unit) sudah disiapkan dan keluar dari gudang?" type="button" class="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm shadow-blue-500/20 transition">
+                                ✓ Konfirmasi Dikeluarkan
                             </button>
-                            <button wire:click="cancelTransaction({{ $task->id }})" wire:confirm="Batalkan pesanan pengeluaran barang ini?" type="button" class="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition dark:bg-red-900/30 dark:text-red-300">
-                                Batal
+                            <button wire:click="cancelTransaction({{ $task->id }})" wire:confirm="Tolak pengeluaran barang ini?" type="button" class="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition dark:bg-red-900/30 dark:text-red-300">
+                                Tolak
                             </button>
                         </div>
                     </div>

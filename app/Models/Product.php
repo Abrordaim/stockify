@@ -77,21 +77,21 @@ class Product extends Model
     public function getCurrentStockAttribute(): int
     {
         $in = $this->stockTransactions()
-            ->where('status', 'completed')
+            ->whereIn('status', ['Diterima', 'completed'])
             ->where('type', 'in')
             ->sum('quantity');
 
         $out = $this->stockTransactions()
-            ->where('status', 'completed')
+            ->whereIn('status', ['Dikeluarkan', 'completed'])
             ->where('type', 'out')
             ->sum('quantity');
 
         $adjustment = $this->stockTransactions()
-            ->where('status', 'completed')
+            ->whereIn('status', ['Diterima', 'completed'])
             ->where('type', 'adjustment')
             ->sum('quantity');
 
-        return $in - $out + $adjustment;
+        return (int) ($in - $out + $adjustment);
     }
 
     /**

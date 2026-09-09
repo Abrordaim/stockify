@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\CategoryService;
 use App\Services\ProductService;
+use App\Services\SettingService;
 use App\Services\StockTransactionService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -13,7 +14,8 @@ class ReportController extends Controller
     public function __construct(
         protected ProductService $productService,
         protected StockTransactionService $stockService,
-        protected CategoryService $categoryService
+        protected CategoryService $categoryService,
+        protected SettingService $settingService
     ) {}
 
     /**
@@ -89,6 +91,7 @@ class ReportController extends Controller
 
         return view('reports.stock-print', [
             'products' => $products,
+            'settings' => $this->settingService->getSettings(),
             'generatedAt' => now()->translatedFormat('d F Y, H:i'),
             'generatedBy' => auth()->user()->name,
         ]);
@@ -102,11 +105,21 @@ class ReportController extends Controller
         $startDate = $request->get('start_date', now()->subDays(30)->toDateString());
         $endDate = $request->get('end_date', now()->toDateString());
         $type = $request->get('type');
+        $status = $request->get('status');
+        $categoryId = $request->get('category_id');
 
         $transactions = $this->stockService->getTransactionsByDateRange($startDate, $endDate);
 
         if ($type) {
             $transactions = $transactions->where('type', $type);
+        }
+
+        if ($status) {
+            $transactions = $transactions->filter(fn($tx) => $tx->status === $status);
+        }
+
+        if ($categoryId) {
+            $transactions = $transactions->filter(fn($tx) => $tx->product && (string) $tx->product->category_id === (string) $categoryId);
         }
 
         $filename = 'Laporan_Mutasi_Stok_' . date('Y-m-d_His') . '.csv';
@@ -122,31 +135,47 @@ class ReportController extends Controller
                 'Tanggal',
                 'SKU',
                 'Nama Produk',
+                'Kategori',
                 'Tipe Mutasi',
                 'Kuantitas (Unit)',
+                'Stok Sebelum',
+                'Stok Sesudah',
                 'Dicatat Oleh',
+                'Dikonfirmasi Oleh',
+                'Waktu Konfirmasi',
                 'Status',
                 'Keterangan / Catatan',
             ]);
 
             $no = 1;
             foreach ($transactions as $tx) {
-                $typeLabel = match($tx->type) {
+                $typeLabel = match ($tx->type) {
                     'in' => 'Barang Masuk',
                     'out' => 'Barang Keluar',
                     'adjustment' => 'Stock Opname',
                     default => $tx->type,
                 };
 
+                $confirmedByName = $tx->confirmedBy
+                    ? $tx->confirmedBy->name
+                    : (in_array($tx->status, ['Pending', 'pending']) ? 'Menunggu' : '-');
+
+                $confirmedAt = $tx->confirmed_at ? $tx->confirmed_at->format('d/m/Y H:i') : '-';
+
                 fputcsv($handle, [
                     $no++,
                     $tx->date ? $tx->date->format('d/m/Y') : '-',
                     $tx->product->sku ?? '-',
                     $tx->product->name ?? '-',
+                    $tx->product->category->name ?? '-',
                     $typeLabel,
                     ($tx->type === 'in' ? '+' : ($tx->type === 'out' ? '-' : '')) . $tx->quantity,
-                    $tx->user->name ?? '-',
-                    strtoupper($tx->status),
+                    $tx->stock_before,
+                    $tx->stock_after,
+                    $tx->createdBy->name ?? ($tx->user->name ?? '-'),
+                    $confirmedByName,
+                    $confirmedAt,
+                    $tx->status,
                     $tx->notes ?: '-',
                 ]);
             }
@@ -166,6 +195,8 @@ class ReportController extends Controller
         $startDate = $request->get('start_date', now()->subDays(30)->toDateString());
         $endDate = $request->get('end_date', now()->toDateString());
         $type = $request->get('type');
+        $status = $request->get('status');
+        $categoryId = $request->get('category_id');
 
         $transactions = $this->stockService->getTransactionsByDateRange($startDate, $endDate);
 
@@ -173,11 +204,32 @@ class ReportController extends Controller
             $transactions = $transactions->where('type', $type);
         }
 
+        if ($status) {
+            $transactions = $transactions->filter(fn($tx) => $tx->status === $status);
+        }
+
+        if ($categoryId) {
+            $transactions = $transactions->filter(fn($tx) => $tx->product && (string) $tx->product->category_id === (string) $categoryId);
+        }
+
+        // Calculate summary for print sheet
+        $totalIn = (int) $transactions->where('type', 'in')
+            ->filter(fn($tx) => in_array($tx->status, ['Diterima', 'completed']))
+            ->sum('quantity');
+
+        $totalOut = (int) $transactions->where('type', 'out')
+            ->filter(fn($tx) => in_array($tx->status, ['Dikeluarkan', 'completed']))
+            ->sum('quantity');
+
         return view('reports.mutations-print', [
             'transactions' => $transactions,
+            'settings' => $this->settingService->getSettings(),
             'startDate' => $startDate,
             'endDate' => $endDate,
             'type' => $type,
+            'status' => $status,
+            'totalIn' => $totalIn,
+            'totalOut' => $totalOut,
             'generatedAt' => now()->translatedFormat('d F Y, H:i'),
             'generatedBy' => auth()->user()->name,
         ]);

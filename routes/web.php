@@ -25,7 +25,8 @@ Route::middleware('auth')->group(function () {
 
     // 2. Admin Only Routes (Role: admin)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        // User Management, System Settings
+        Route::livewire('/users', 'pages::users.index')->name('users.index');
+        Route::livewire('/settings', 'pages::settings.index')->name('settings.index');
     });
 
     // 3. Admin & Warehouse Manager Routes (Role: admin, manager)

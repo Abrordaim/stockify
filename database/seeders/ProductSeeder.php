@@ -215,10 +215,15 @@ class ProductSeeder extends Seeder
                     StockTransaction::create([
                         'product_id' => $product->id,
                         'user_id' => $manager->id,
+                        'created_by' => $manager->id,
+                        'confirmed_by' => $manager->id,
+                        'confirmed_at' => now(),
                         'type' => 'in',
                         'quantity' => $initialStock,
                         'date' => now()->toDateString(),
-                        'status' => 'completed',
+                        'status' => 'Diterima',
+                        'stock_before' => 0,
+                        'stock_after' => $initialStock,
                         'notes' => 'Stok awal (Seeder)',
                     ]);
                 }

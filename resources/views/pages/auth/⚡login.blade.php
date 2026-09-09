@@ -55,6 +55,7 @@ new #[Layout('layouts.app')] #[Title('Login - Stockify')] class extends Componen
                     <p class="max-w-xl mt-3 text-gray-300">
                         Sistem manajemen stok barang yang membantu bisnis Anda mengelola
                         gudang secara efisien dan akurat.
+                        {{-- http://127.0.0.1:8000/storage/images/hero.webp --}}
                     </p>
                 </div>
             </div>

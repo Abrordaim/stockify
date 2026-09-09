@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Mutasi Stok - Stockify</title>
+    <link rel="icon" href="{{ $settings->logo_url ?: asset('gudang.png') }}">
+    <title>Laporan Mutasi Stok - {{ $settings->app_name ?? 'Stockify' }}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -87,14 +88,25 @@
     </div>
 
     <div class="header">
-        <h1>STOCKIFY INVENTORY MANAGEMENT</h1>
+        @if(isset($settings) && ($settings->logo_base64 || $settings->logo_url))
+            <img src="{{ $settings->logo_base64 ?: $settings->logo_url }}" alt="Logo" style="max-height: 52px; margin-bottom: 8px; object-contain: contain;">
+        @endif
+        <h1>{{ strtoupper($settings->company_name ?? 'STOCKIFY INVENTORY MANAGEMENT') }}</h1>
         <p>LAPORAN RIWAYAT MUTASI & PERGERAKAN STOK BARANG</p>
+        @if(isset($settings) && $settings->company_address)
+            <p style="font-size: 10px; color: #4b5563; margin-top: 2px;">
+                {{ $settings->company_address }}
+                @if($settings->company_phone) | Telp: {{ $settings->company_phone }} @endif
+                @if($settings->company_email) | Email: {{ $settings->company_email }} @endif
+            </p>
+        @endif
     </div>
 
     <div class="meta-info">
         <div>
             <strong>Periode Transaksi:</strong> {{ date('d/m/Y', strtotime($startDate)) }} s/d {{ date('d/m/Y', strtotime($endDate)) }}<br>
             <strong>Filter Tipe:</strong> {{ $type ? strtoupper($type) : 'SEMUA TIPE' }}
+            @if(isset($status) && $status) | <strong>Status:</strong> {{ strtoupper($status) }} @endif
         </div>
         <div style="text-align: right;">
             <strong>Dicetak Oleh:</strong> {{ $generatedBy }}<br>
@@ -102,22 +114,51 @@
         </div>
     </div>
 
+    @if(isset($totalIn) || isset($totalOut))
+    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+        <div style="flex: 1; padding: 10px 14px; border: 1px solid #d1fae5; background: #f0fdf4; border-radius: 8px;">
+            <div style="font-size: 10px; font-weight: bold; color: #047857; text-transform: uppercase;">Total Masuk (Diterima)</div>
+            <div style="font-size: 16px; font-weight: bold; color: #065f46; margin-top: 2px;">+{{ number_format($totalIn ?? 0, 0, ',', '.') }} Unit</div>
+        </div>
+        <div style="flex: 1; padding: 10px 14px; border: 1px solid #dbeafe; background: #eff6ff; border-radius: 8px;">
+            <div style="font-size: 10px; font-weight: bold; color: #1d4ed8; text-transform: uppercase;">Total Keluar (Dikeluarkan)</div>
+            <div style="font-size: 16px; font-weight: bold; color: #1e40af; margin-top: 2px;">-{{ number_format($totalOut ?? 0, 0, ',', '.') }} Unit</div>
+        </div>
+        <div style="flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 8px;">
+            <div style="font-size: 10px; font-weight: bold; color: #4b5563; text-transform: uppercase;">Net Arus Barang</div>
+            <div style="font-size: 16px; font-weight: bold; color: #111827; margin-top: 2px;">
+                {{ (($totalIn ?? 0) - ($totalOut ?? 0)) > 0 ? '+' : '' }}{{ number_format(($totalIn ?? 0) - ($totalOut ?? 0), 0, ',', '.') }} Unit
+            </div>
+        </div>
+    </div>
+    @endif
+
     <table>
         <thead>
             <tr>
-                <th style="width: 30px;" class="text-center">No</th>
-                <th style="width: 80px;">Tanggal</th>
-                <th style="width: 100px;">SKU</th>
+                <th style="width: 25px;" class="text-center">No</th>
+                <th style="width: 70px;">Tanggal</th>
+                <th style="width: 80px;">SKU</th>
                 <th>Nama Produk</th>
-                <th class="text-center" style="width: 100px;">Tipe Mutasi</th>
-                <th class="text-center" style="width: 80px;">Kuantitas</th>
-                <th style="width: 100px;">Petugas</th>
-                <th class="text-center" style="width: 80px;">Status</th>
-                <th>Keterangan</th>
+                <th class="text-center" style="width: 65px;">Tipe</th>
+                <th class="text-center" style="width: 65px;">Jumlah</th>
+                <th class="text-center" style="width: 85px;">Stok (Sblm→Ssdh)</th>
+                <th style="width: 90px;">Dicatat Oleh</th>
+                <th style="width: 90px;">Dikonfirmasi</th>
+                <th class="text-center" style="width: 75px;">Status</th>
+                <th>Catatan</th>
             </tr>
         </thead>
         <tbody>
             @forelse($transactions as $index => $tx)
+            @php
+                $statusNormalized = match ($tx->status) {
+                    'completed' => ($tx->type === 'out' ? 'Dikeluarkan' : 'Diterima'),
+                    'cancelled' => 'Ditolak',
+                    'pending' => 'Pending',
+                    default => $tx->status,
+                };
+            @endphp
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td class="font-mono">{{ $tx->date ? $tx->date->format('d/m/Y') : '-' }}</td>
@@ -133,17 +174,29 @@
                     @endif
                 </td>
                 <td class="text-center font-mono" style="font-weight: bold;">
-                    {{ $tx->type === 'in' ? '+' : ($tx->type === 'out' ? '-' : '') }}{{ $tx->quantity }} Unit
+                    {{ $tx->type === 'in' ? '+' : ($tx->type === 'out' ? '-' : '') }}{{ $tx->quantity }}
                 </td>
-                <td>{{ $tx->user->name ?? '-' }}</td>
+                <td class="text-center font-mono" style="font-size: 10px;">
+                    {{ $tx->stock_before }} → {{ $tx->stock_after }}
+                </td>
+                <td>{{ $tx->createdBy->name ?? ($tx->user->name ?? '-') }}</td>
+                <td>
+                    @if($tx->confirmedBy)
+                        {{ $tx->confirmedBy->name }}
+                    @elseif($statusNormalized === 'Pending')
+                        <span style="color: #d97706; font-weight: bold;">Menunggu</span>
+                    @else
+                        -
+                    @endif
+                </td>
                 <td class="text-center">
-                    <span style="font-size: 10px; font-weight: bold; text-transform: uppercase;">{{ $tx->status }}</span>
+                    <span style="font-size: 9px; font-weight: bold; text-transform: uppercase;">{{ $statusNormalized }}</span>
                 </td>
                 <td style="color: #4b5563;">{{ $tx->notes ?: '-' }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="9" class="text-center" style="padding: 24px; color: #9ca3af;">
+                <td colspan="11" class="text-center" style="padding: 24px; color: #9ca3af;">
                     Tidak ada data transaksi mutasi pada periode ini.
                 </td>
             </tr>
@@ -153,12 +206,12 @@
 
     <div class="footer">
         <div>
-            Catatan: Laporan audit mutasi ini dikeluarkan secara resmi oleh sistem Stockify.
+            {{ $settings->footer_note ?? 'Catatan: Laporan audit mutasi ini dikeluarkan secara resmi oleh sistem Stockify.' }}
         </div>
         <div class="signature-box">
-            <span>Penanggung Jawab Gudang,</span>
+            <span>{{ $settings->signee_title ?? 'Penanggung Jawab Gudang,' }}</span>
             <div class="signature-line"></div>
-            <span>{{ $generatedBy }}</span>
+            <span>{{ $settings->signee_name ?? $generatedBy }}</span>
         </div>
     </div>
 </body>

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Stok Barang - Stockify</title>
+    <link rel="icon" href="{{ $settings->logo_url ?: asset('gudang.png') }}">
+    <title>Laporan Stok Barang - {{ $settings->app_name ?? 'Stockify' }}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -90,8 +91,18 @@
     </div>
 
     <div class="header">
-        <h1>STOCKIFY INVENTORY MANAGEMENT</h1>
+        @if(isset($settings) && ($settings->logo_base64 || $settings->logo_url))
+            <img src="{{ $settings->logo_base64 ?: $settings->logo_url }}" alt="Logo" style="max-height: 52px; margin-bottom: 8px; object-contain: contain;">
+        @endif
+        <h1>{{ strtoupper($settings->company_name ?? 'STOCKIFY INVENTORY MANAGEMENT') }}</h1>
         <p>LAPORAN POSISI STOK BARANG & VALUASI ASET GUDANG</p>
+        @if(isset($settings) && $settings->company_address)
+            <p style="font-size: 10px; color: #4b5563; margin-top: 2px;">
+                {{ $settings->company_address }}
+                @if($settings->company_phone) | Telp: {{ $settings->company_phone }} @endif
+                @if($settings->company_email) | Email: {{ $settings->company_email }} @endif
+            </p>
+        @endif
     </div>
 
     <div class="meta-info">
@@ -108,15 +119,15 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 30px;" class="text-center">No</th>
+                <th class="text-center" style="width: 40px;">No</th>
                 <th>SKU</th>
                 <th>Nama Produk</th>
                 <th>Kategori</th>
                 <th>Supplier</th>
                 <th class="text-right">Harga Beli</th>
-                <th class="text-center">Min</th>
+                <th class="text-center">Min.</th>
                 <th class="text-center">Stok</th>
-                <th class="text-right">Total Nilai Aset</th>
+                <th class="text-right">Total Nilai</th>
                 <th class="text-center">Status</th>
             </tr>
         </thead>
@@ -126,6 +137,7 @@
             @php
                 $assetVal = $p->purchase_price * $p->current_stock;
                 $totalAssetValue += $assetVal;
+                $currency = $settings->currency_symbol ?? 'Rp';
             @endphp
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
@@ -133,10 +145,10 @@
                 <td style="font-weight: 600;">{{ $p->name }}</td>
                 <td>{{ $p->category->name ?? '-' }}</td>
                 <td>{{ $p->supplier->name ?? '-' }}</td>
-                <td class="text-right font-mono">Rp {{ number_format($p->purchase_price, 0, ',', '.') }}</td>
+                <td class="text-right font-mono">{{ $currency }} {{ number_format($p->purchase_price, 0, ',', '.') }}</td>
                 <td class="text-center font-mono">{{ $p->minimum_stock }}</td>
                 <td class="text-center font-mono" style="font-weight: bold;">{{ $p->current_stock }}</td>
-                <td class="text-right font-mono">Rp {{ number_format($assetVal, 0, ',', '.') }}</td>
+                <td class="text-right font-mono">{{ $currency }} {{ number_format($assetVal, 0, ',', '.') }}</td>
                 <td class="text-center">
                     @if($p->is_low_stock)
                         <span class="status-low">MENIPIS</span>
@@ -149,7 +161,7 @@
             <tr class="total-row">
                 <td colspan="7" class="text-right">TOTAL KESELURUHAN ASET:</td>
                 <td class="text-center font-mono">{{ $products->sum('current_stock') }} Unit</td>
-                <td class="text-right font-mono">Rp {{ number_format($totalAssetValue, 0, ',', '.') }}</td>
+                <td class="text-right font-mono">{{ $settings->currency_symbol ?? 'Rp' }} {{ number_format($totalAssetValue, 0, ',', '.') }}</td>
                 <td></td>
             </tr>
         </tbody>
@@ -157,12 +169,12 @@
 
     <div class="footer">
         <div>
-            Catatan: Laporan ini dihasilkan secara otomatis oleh sistem Stockify.
+            {{ $settings->footer_note ?? 'Catatan: Laporan ini dihasilkan secara otomatis oleh sistem Stockify.' }}
         </div>
         <div class="signature-box">
-            <span>Penanggung Jawab Gudang,</span>
+            <span>{{ $settings->signee_title ?? 'Penanggung Jawab Gudang,' }}</span>
             <div class="signature-line"></div>
-            <span>{{ $generatedBy }}</span>
+            <span>{{ $settings->signee_name ?? $generatedBy }}</span>
         </div>
     </div>
 </body>

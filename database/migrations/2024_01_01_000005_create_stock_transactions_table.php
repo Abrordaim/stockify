@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('type', ['in', 'out', 'adjustment']);
             $table->integer('quantity');
             $table->date('date');
-            $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
+            $table->string('status', 30)->default('Pending');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

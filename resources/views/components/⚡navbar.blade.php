@@ -3,8 +3,20 @@
 use App\Services\AuthService;
 use Livewire\Component;
 
+use App\Services\SettingService;
+
 new class extends Component
 {
+    public  $logo ;
+    public string $app_name;
+
+    public function mount(SettingService $service) {
+        $settings = $service->getSettings();
+
+        $this->logo = $settings->logo_url;
+        $this->app_name = $settings->app_name;
+    }
+
     public function logout(): void
     {
         /** @var AuthService $authService */
@@ -33,11 +45,11 @@ new class extends Component
             <div class="overflow-y-auto px-4 py-5 space-y-4">
                 <!-- Brand / Logo -->
                 <div class="flex items-center space-x-3 px-2 pb-4 border-b border-gray-200 dark:border-gray-700">
-                    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/30">
-                        S
-                    </div>
+                    @if ($logo)
+                    <img src="{{ $logo }}" alt="{{ $app_name }}" class="h-9 w-auto max-w-[60px] object-contain rounded-lg">
+                    @endif
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Stockify</h1>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{{$app_name}}</h1>
                         <span class="text-xs text-gray-500 dark:text-gray-400">Inventory System</span>
                     </div>
                 </div>
@@ -98,11 +110,20 @@ new class extends Component
                         </span>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-2.5 text-gray-700 rounded-lg dark:text-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-gray-700 transition duration-150">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('admin.users.index') }}" class="flex items-center p-2.5 text-gray-700 rounded-lg dark:text-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-gray-700 transition duration-150 {{ request()->routeIs('admin.users*') ? 'bg-blue-50 text-blue-600 font-semibold dark:bg-gray-700' : '' }}">
+                            <svg class="w-5 h-5 {{ request()->routeIs('admin.users*') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                             </svg>
                             <span class="ml-3">Manajemen User</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.settings.index') }}" class="flex items-center p-2.5 text-gray-700 rounded-lg dark:text-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-gray-700 transition duration-150 {{ request()->routeIs('admin.settings*') ? 'bg-blue-50 text-blue-600 font-semibold dark:bg-gray-700' : '' }}">
+                            <svg class="w-5 h-5 {{ request()->routeIs('admin.settings*') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span class="ml-3">Pengaturan Sistem</span>
                         </a>
                     </li>
                     @endif

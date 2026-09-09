@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\SettingRepositoryInterface;
 use App\Repositories\Contracts\StockTransactionRepositoryInterface;
 use App\Repositories\Contracts\SupplierRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\SettingRepository;
 use App\Repositories\StockTransactionRepository;
 use App\Repositories\SupplierRepository;
 use App\Repositories\UserRepository;
@@ -27,6 +29,7 @@ class RepositoryServiceProvider extends ServiceProvider
         SupplierRepositoryInterface::class => SupplierRepository::class,
         ProductRepositoryInterface::class => ProductRepository::class,
         StockTransactionRepositoryInterface::class => StockTransactionRepository::class,
+        SettingRepositoryInterface::class => SettingRepository::class,
     ];
 
     /**
