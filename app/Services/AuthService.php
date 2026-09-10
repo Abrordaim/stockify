@@ -61,9 +61,10 @@ class AuthService
      */
     public function getDashboardRoute(string $role): string
     {
-        return match ($role) {
-            'admin', 'manager', 'staff' => 'dashboard',
-            default => 'login',
-        };
+        if ($role === 'staff') {
+            return 'stock.tasks';
+        }
+
+        return 'dashboard';
     }
 }

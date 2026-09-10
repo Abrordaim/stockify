@@ -24,6 +24,11 @@ class RoleMiddleware
 
         // If specific roles are passed, verify user has one of them
         if (!empty($roles) && !$user->hasAnyRole($roles)) {
+            // Staff is not allowed in dashboard; redirect directly to tasks page
+            if ($user->isStaff() && ($request->is('dashboard*') || $request->routeIs('dashboard*'))) {
+                return redirect()->route('stock.tasks');
+            }
+
             abort(403, 'Akses Ditolak: Anda tidak memiliki izin (' . implode('/', $roles) . ') untuk mengakses halaman ini.');
         }
 

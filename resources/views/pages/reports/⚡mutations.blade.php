@@ -122,7 +122,7 @@ new #[Layout('layouts.app')] #[Title('Laporan Mutasi Stok - Stockify')] class ex
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
             <div>
                 <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Laporan Mutasi & Pergerakan Stok</h1>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -151,7 +151,7 @@ new #[Layout('layouts.app')] #[Title('Laporan Mutasi Stok - Stockify')] class ex
         </div>
 
         <!-- Metric Summary Cards (Hitung HANYA Diterima / Dikeluarkan) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2  lg:grid-cols-4 gap-4">
             <!-- Total Barang Masuk (Diterima) -->
             <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
                 <div class="flex items-center justify-between">
@@ -292,18 +292,23 @@ new #[Layout('layouts.app')] #[Title('Laporan Mutasi Stok - Stockify')] class ex
                 </span>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <div class="overflow-x-auto scroll-auto ">
+                <table class=" table-auto w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700/50 dark:text-gray-300">
                         <tr>
-                            <th class="px-4 py-3.5">Tanggal</th>
-                            <th class="px-4 py-3.5">SKU</th>
-                            <th class="px-4 py-3.5">Nama Produk</th>
-                            <th class="px-4 py-3.5 text-center">Tipe</th>
-                            <th class="px-4 py-3.5 text-center">Kuantitas</th>
-                            <th class="px-4 py-3.5 text-center">Status</th>
-                            <th class="px-4 py-3.5 text-right">Stok Sesudah</th>
-                            <th class="px-4 py-3.5 text-center w-12">Detail</th>
+                            <th class=" px-2 py-3.5 text-center">Tanggal</th>
+                            <th class=" px-2 py-3.5 text-center">SKU</th>
+                            <th class=" px-2 py-3.5 text-center">Nama Produk</th>
+                            <th class=" px-2 py-3.5 text-center">Tipe</th>
+                            <th class=" px-2 py-3.5 text-center">Kuantitas</th>
+                            <th class=" px-2 py-3.5 text-center">Status</th>
+                            <th class=" px-2 py-3.5 text-center">Stok Sesudah</th>
+                            <th class=" px-2 py-3.5 text-center">Dicatat oleh</th>
+                            <th class=" px-2 py-3.5 text-center">Dikonfirmasi oleh</th>
+                            <th class=" px-2 py-3.5 text-center">Waktu konfirmasi</th>
+                            <th class=" px-2 py-3.5 text-center">Perubahan Stock fisik</th>
+
+                            {{-- <th class="border  py-3.5 text-center w-12">Detail</th> --}}
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -316,17 +321,17 @@ new #[Layout('layouts.app')] #[Title('Laporan Mutasi Stok - Stockify')] class ex
                                 default => $tx->status,
                             };
                         @endphp
-                        <tr x-data="{ expanded: false }" class="hover:bg-gray-50/70 dark:hover:bg-gray-700/30 transition">
-                            <td colspan="8" class="p-0">
+                        {{-- <tr x-data="{ expanded: false }" class="hover:bg-gray-50/70 dark:hover:bg-gray-700/30 transition">
+                            <td colspan="1" class="p-0">
                                 <!-- MAIN ROW SUMMARY (Click to Toggle Detail) -->
-                                <div @click="expanded = !expanded" class="cursor-pointer grid grid-cols-12 items-center px-4 py-3.5 gap-2 select-none">
+                                <div @click="expanded = !expanded" class="border cursor-pointer grid grid-cols-12 items-center px-4 py-3.5 gap-2 select-none">
                                     <!-- Tanggal -->
-                                    <div class="col-span-2 text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                                    <div class=" border col-span-2 text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap">
                                         {{ $tx->date ? $tx->date->format('d/m/Y') : '-' }}
                                     </div>
 
                                     <!-- SKU -->
-                                    <div class="col-span-2 font-mono text-xs text-blue-600 dark:text-blue-400 font-semibold truncate">
+                                    <div class="border col-span-2  font-mono text-xs text-blue-600 dark:text-blue-400 font-semibold truncate">
                                         {{ $tx->product->sku ?? '-' }}
                                     </div>
 
@@ -475,6 +480,86 @@ new #[Layout('layouts.app')] #[Title('Laporan Mutasi Stok - Stockify')] class ex
                                     </div>
                                 </div>
                             </td>
+                        </tr> --}}
+                        <tr   class="hover:bg-gray-50/70 dark:hover:bg-gray-700/30 transition">
+                            <div>
+                                <div>
+                                    <td class="p-2 text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                                        {{ $tx->date ? $tx->date->format('d/m/Y') : '-' }}
+                                    </td>
+                                    <td class="p-2 font-mono text-xs text-blue-600 dark:text-blue-400 font-semibold truncate">
+                                        {{ $tx->product->sku ?? '-' }}
+                                    </td>
+                                    <td class="p-2 font-semibold text-gray-900 dark:text-white truncate">
+                                        {{ $tx->product->name ?? 'Produk Dihapus' }}
+                                    </td>
+                                    <td class="text-center whitespace-nowrap p-2">
+                                        @if($tx->type === 'in')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                                    Masuk
+                                                </span>
+                                            @elseif($tx->type === 'out')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                                                    Keluar
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">
+                                                    Opname
+                                                </span>
+                                            @endif
+                                    </td>
+                                    <td class="text-center font-mono font-bold text-xs whitespace-nowrap">
+                                        <span class="{{ $tx->type === 'in' ? 'text-emerald-600' : ($tx->type === 'out' ? 'text-blue-600' : 'text-purple-600') }}">
+                                            {{ $tx->type === 'in' ? '+' : ($tx->type === 'out' ? '-' : ($tx->quantity > 0 ? '+' : '')) }}{{ $tx->quantity }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center whitespace-nowrap p-2">
+                                        @if($statusNormalized === 'Pending')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1 animate-pulse"></span>
+                                                    Pending
+                                                </span>
+                                            @elseif($statusNormalized === 'Diterima')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1"></span>
+                                                    Diterima
+                                                </span>
+                                            @elseif($statusNormalized === 'Dikeluarkan')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1"></span>
+                                                    Dikeluarkan
+                                                </span>
+                                            @elseif($statusNormalized === 'Ditolak')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1"></span>
+                                                    Ditolak
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600">
+                                                    {{ $statusNormalized }}
+                                                </span>
+                                            @endif
+                                    </td>
+                                    <td class="text-center font-mono font-bold text-xs text-gray-900 dark:text-white whitespace-nowrap">
+                                        {{ number_format($tx->stock_after) }} Unit
+                                    </td>
+                                    <td class="px-4 ">
+                                        <p class="font-medium text-center text-gray-900 dark:text-white text-sm">{{ $tx->createdBy->name ?? ($tx->user->name ?? '-') }}
+                                            {{-- <span class="font-normal">{{ $tx->createdBy->role ?? ($tx->user->role ?? 'User') }}</span> --}}
+                                        </p>
+
+                                    </td>
+                                    <td class="px-2 font-medium text-center text-sm text-gray-900 ">
+                                        {{ $tx->confirmedBy->name }}
+                                    </td>
+                                    <td class="p-2 text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                                        {{ $tx->confirmed_at ? $tx->confirmed_at->format('d/m/Y H:i') : '-' }}
+                                    </td>
+                                    <td class="text-center font-mono font-bold text-xs">
+                                        <span class="text-gray-900">{{ $tx->stock_before }}</span> -> <span class="text-gray-900">{{ $tx->stock_after }}</span>
+                                    </td>
+                                </div>
+                            </div>
                         </tr>
                         @empty
                         <tr>

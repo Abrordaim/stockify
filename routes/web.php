@@ -20,9 +20,7 @@ Route::middleware('guest')->group(function () {
 
 // Authenticated routes — protected by auth middleware
 Route::middleware('auth')->group(function () {
-    // 1. Dashboard (Accessible by all authenticated roles: Admin, Manager, Staff)
-    Route::livewire('/dashboard', 'pages::dashboard.dashboard')->name('dashboard');
-
+    // 1. Dashboard
     // 2. Admin Only Routes (Role: admin)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::livewire('/users', 'pages::users.index')->name('users.index');
@@ -31,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     // 3. Admin & Warehouse Manager Routes (Role: admin, manager)
     Route::middleware('role:admin,manager')->group(function () {
+        Route::livewire('/dashboard', 'pages::dashboard.dashboard')->name('dashboard');
         // Master Data CRUD (Products, Categories, Suppliers)
         Route::livewire('/categories', 'pages::categories.index')->name('categories.index');
         Route::livewire('/suppliers', 'pages::suppliers.index')->name('suppliers.index');
@@ -50,6 +49,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // 4. Warehouse Operations & Stock Management (Role: admin, manager, staff)
+    Route::redirect('/tasks', '/stock/tasks')->name('tasks');
     Route::prefix('stock')->name('stock.')->group(function () {
         Route::livewire('/in', 'pages::stock.in')->name('in');
         Route::livewire('/out', 'pages::stock.out')->name('out');

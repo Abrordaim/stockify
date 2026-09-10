@@ -21,6 +21,10 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                $user = Auth::guard($guard)->user();
+                if ($user && $user->role === 'staff') {
+                    return redirect()->route('stock.tasks');
+                }
                 return redirect(RouteServiceProvider::HOME);
             }
         }

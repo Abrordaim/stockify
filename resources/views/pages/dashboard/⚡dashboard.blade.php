@@ -12,10 +12,17 @@ new #[Layout('layouts.app')] #[Title('Dashboard - Stockify')] class extends Comp
 {
     public string $period = '7_days';
 
+    public function mount(): void
+    {
+        if (auth()->check() && auth()->user()->isStaff()) {
+            $this->redirect(route('stock.tasks'), navigate: true);
+        }
+    }
+
     public function setPeriod(string $period): void
     {
         $this->period = $period;
-        
+
         // Dispatch event for ApexCharts to smoothly update series
         /** @var StockTransactionService $stockService */
         $stockService = app(StockTransactionService::class);
@@ -124,72 +131,34 @@ new #[Layout('layouts.app')] #[Title('Dashboard - Stockify')] class extends Comp
         </div>
 
         <!-- STATS CARDS ROW -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Card 1: Total Produk -->
-            <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Produk</p>
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $totalProducts }}</h3>
-                    <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">Item aktif di katalog</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                </div>
-            </div>
+            <x-molecules.card title="Total Produk" description="Item aktif di katalog" total="{{ $totalProducts }}" color="blue">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+            </x-molecules.card>
 
             <!-- Card 2: Stok Menipis (Alert / Low Stock) -->
-            <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stok Menipis</p>
-                    <h3 class="text-2xl font-bold {{ $lowStockProducts->count() > 0 ? 'text-red-600' : 'text-gray-900 dark:text-white' }} mt-1">
-                        {{ $lowStockProducts->count() }}
-                    </h3>
-                    <p class="text-xs {{ $lowStockProducts->count() > 0 ? 'text-red-500 font-medium' : 'text-emerald-500' }} mt-1">
-                        {{ $lowStockProducts->count() > 0 ? 'Perlu Restock Segera' : 'Semua Stok Aman' }}
-                    </p>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                </div>
-            </div>
+            <x-molecules.card title="stock menipis" description="Perlu Restock Segera" total="{{  $lowStockProducts->count() }}" color="red">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </x-molecules.card>
 
             <!-- Card 3: Barang Masuk (Periode Terpilih) -->
-            <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700 flex items-center justify-between">
-                <div>
-                    <div class="flex items-center space-x-1.5">
-                        <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Barang Masuk</p>
-                        <span class="text-[10px] text-gray-400">({{ $periodStats['period_label'] }})</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">+{{ number_format($periodStats['in_qty']) }} <span class="text-xs font-normal text-gray-400">Unit</span></h3>
-                    <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">{{ $periodStats['in_count'] }} transaksi penerimaan</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                    </svg>
-                </div>
-            </div>
+            <x-molecules.card title="Barang masuk" description="{{ $periodStats['period_label'] }}" total="+{{ number_format($periodStats['in_qty']) }}" color="emerald">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                </svg>
+            </x-molecules.card>
 
             <!-- Card 4: Barang Keluar (Periode Terpilih) -->
-            <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700 flex items-center justify-between">
-                <div>
-                    <div class="flex items-center space-x-1.5">
-                        <p class="text-xs font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">Barang Keluar</p>
-                        <span class="text-[10px] text-gray-400">({{ $periodStats['period_label'] }})</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">-{{ number_format($periodStats['out_qty']) }} <span class="text-xs font-normal text-gray-400">Unit</span></h3>
-                    <p class="text-xs text-amber-600 dark:text-amber-400 mt-1 font-medium">{{ $periodStats['out_count'] }} transaksi pengeluaran</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                </div>
-            </div>
+            <x-molecules.card title="barang keluar" color="amber" total="-{{ number_format($periodStats['out_qty']) }}" description="{{  $periodStats['period_label'] }}">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+            </x-molecules.card>
         </div>
 
         <!-- MIDDLE ROW: CHART & LOW STOCK ALERT -->

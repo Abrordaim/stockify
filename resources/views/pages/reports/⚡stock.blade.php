@@ -61,7 +61,7 @@ new #[Layout('layouts.app')] #[Title('Laporan Stok & Valuasi Aset - Stockify')] 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
             <div>
                 <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Laporan Stok & Valuasi Aset</h1>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -90,40 +90,12 @@ new #[Layout('layouts.app')] #[Title('Laporan Stok & Valuasi Aset - Stockify')] 
         </div>
 
         <!-- Metric Analytics Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Card 1: Total Item Produk -->
-            <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Item</p>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $totalItems }}</h3>
-                <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">Jenis barang terdaftar</p>
-            </div>
-
-            <!-- Card 2: Total Unit Fisik -->
-            <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Fisik Barang</p>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ number_format($totalUnits, 0, ',', '.') }}</h3>
-                <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Unit tersedia di gudang</p>
-            </div>
-
-            <!-- Card 3: Valuasi Nilai Aset -->
-            <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Nilai Aset</p>
-                <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                    Rp {{ number_format($totalAssetValue, 0, ',', '.') }}
-                </h3>
-                <p class="text-xs text-gray-500 mt-1">Berdasarkan harga beli</p>
-            </div>
-
-            <!-- Card 4: Stok Menipis -->
-            <div class="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Peringatan Stok Menipis</p>
-                <h3 class="text-2xl font-bold {{ $lowStockCount > 0 ? 'text-red-600' : 'text-gray-900 dark:text-white' }} mt-1">
-                    {{ $lowStockCount }} Item
-                </h3>
-                <p class="text-xs {{ $lowStockCount > 0 ? 'text-red-500 font-medium' : 'text-emerald-500' }} mt-1">
-                    {{ $lowStockCount > 0 ? 'Perlu pengadaan ulang' : 'Semua stok aman' }}
-                </p>
-            </div>
+            <x-molecules.card title="total item" description="Jenis barang terdaftar" total="{{ $totalItems }}" color="blue"/>
+            <x-molecules.card title="Total Fisik Barang" description="Unit tersedia di gudang" total="{{ number_format($totalUnits, 0, ',', '.') }}" color="emerald"/>
+            <x-molecules.card title="Total Nilai Aset" description="Berdasarkan harga beli" total="Rp {{ number_format($totalAssetValue, 0, ',', '.') }}" color="emerald"/>
+            <x-molecules.card title="Peringatan Stok Menipis" description="Berdasarkan harga beli" total="{{ $lowStockCount }} Item" color="red"/>
         </div>
 
         <!-- Filter & Search Bar -->
