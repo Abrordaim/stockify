@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::livewire('/test', 'pages::test.index')->name('test'); //buat test
 
 // Guest routes — redirect to dashboard if already authenticated
 Route::middleware('guest')->group(function () {

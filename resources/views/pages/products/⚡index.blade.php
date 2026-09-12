@@ -386,6 +386,22 @@ new #[Layout('layouts.app')] #[Title('Master Produk & Atribut - Stockify')] clas
                         @endforelse
                     </tbody>
                 </table>
+
+                {{-- <x-organism.table :thead="['Produk','SKU', 'kategori/supplier', 'harga beli', 'harga jual', 'stok', 'status', 'aksi']" >
+                    @foreach ($products as $product )
+                        <tr>
+                            <x-atoms.td>
+                                {{ $product->name }}
+                            </x-atoms.td>
+                            <x-atoms.td>{{ $product->sku }}</x-atoms.td>
+                            <x-atoms.td>{{ $product->category->name }}</x-atoms.td>
+                            <x-atoms.td>{{ $product->purchase_price }}</x-atoms.td>
+                            <x-atoms.td>{{ $product->selling_price }}</x-atoms.td>
+                            <x-atoms.td>{{ $product->selling_price }}</x-atoms.td>
+                           
+                        </tr>
+                    @endforeach
+                </x-organism.table> --}}
             </div>
         </div>
 

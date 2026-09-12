@@ -28,7 +28,7 @@ new #[Layout('layouts.app')] #[Title('Data Supplier - Stockify')] class extends 
         return [
             'name' => 'required|string|max:150',
             'address' => 'nullable|string|max:500',
-            'phone' => 'nullable|string|max:30',
+            'phone' => 'nullable|numeric|min:20',
             'email' => 'nullable|email|max:100',
         ];
     }
@@ -284,7 +284,7 @@ new #[Layout('layouts.app')] #[Title('Data Supplier - Stockify')] class extends 
                         <label for="sup_phone" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">No. Telepon</label>
                         <input wire:model="phone" type="text" id="sup_phone" placeholder="021-xxxx / 0812xxxx"
                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        @error('phone') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                        @error('phone') <span class="error text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <label for="sup_email" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">Email</label>

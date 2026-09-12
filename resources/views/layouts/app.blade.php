@@ -25,7 +25,7 @@
         <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-        @if (request()->routeIs('login') || request()->routeIs('register'))
+        @if (request()->routeIs('login') || request()->routeIs('register') ||request()->routeIs('test'))
 
         @else
             <livewire:navbar />

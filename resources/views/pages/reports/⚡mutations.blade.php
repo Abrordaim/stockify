@@ -550,7 +550,21 @@ new #[Layout('layouts.app')] #[Title('Laporan Mutasi Stok - Stockify')] class ex
 
                                     </td>
                                     <td class="px-2 font-medium text-center text-sm text-gray-900 ">
-                                        {{ $tx->confirmedBy->name }}
+                                        @if($tx->confirmedBy)
+                                                <p class="font-bold text-gray-900 dark:text-white text-sm">
+                                                    {{ $tx->confirmedBy->name }}
+                                                </p>
+                                                <span class="inline-block px-2 py-0.5 text-[10px] rounded font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                                    Staff: {{ $tx->confirmedBy->role }}
+                                                </span>
+                                            @elseif(in_array($statusNormalized, ['Pending']))
+                                                <p class="font-bold text-amber-600 text-sm flex items-center space-x-1">
+                                                    <span>Menunggu Konfirmasi</span>
+                                                </p>
+                                                <span class="text-[11px] text-gray-400">Belum diverifikasi staff gudang</span>
+                                            @else
+                                                <p class="text-gray-400 text-sm">-</p>
+                                            @endif
                                     </td>
                                     <td class="p-2 text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap">
                                         {{ $tx->confirmed_at ? $tx->confirmed_at->format('d/m/Y H:i') : '-' }}
